@@ -5,12 +5,14 @@ class OrangeButton extends StatelessWidget {
   final String text;
   final double width;
   final double height;
+  final Color color;
 
   const OrangeButton({
     super.key, 
     required this.text, 
     this.width = 45, 
     this.height = 16,
+    this.color = Colors.orange
   });
 
   @override
@@ -18,7 +20,7 @@ class OrangeButton extends StatelessWidget {
     return FilledButton(
       onPressed: () {}, 
       style: FilledButton.styleFrom(
-        backgroundColor: Colors.orange,
+        backgroundColor: color,
         elevation: 2,
         padding: EdgeInsets.symmetric(horizontal: width, vertical: height),
       ),

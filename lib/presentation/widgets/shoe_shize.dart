@@ -1,4 +1,9 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shoes_app/presentation/config/helpers/herlpers.dart';
+import 'package:shoes_app/presentation/providers/shoe_provider.dart';
 
 class ShoeSize extends StatelessWidget {
   final bool fullScreen;
@@ -10,11 +15,7 @@ class ShoeSize extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _ShoeWithShadowAndSize(fullScreen),
-      ],
-    );
+    return _ShoeWithShadowAndSize(fullScreen);
   }
 }
 
@@ -25,28 +26,36 @@ class _ShoeWithShadowAndSize extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.topCenter,
-      margin: fullScreen
-      ? const EdgeInsets.all(8)
-      : const EdgeInsets.symmetric(horizontal: 25),
-      width: double.infinity,
-      height: 480,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.yellow.shade600,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            const _ShoeWithShadow(),
-            const Spacer(),
-
-            fullScreen
-            ? const SizedBox()
-            : const _ListSizes(),
-          ],
+    return GestureDetector(
+      onTap: !fullScreen
+      ? () {
+        cambiarStatusDark();
+        context.push('/shoe-preview') ;
+      } 
+      : null,
+      child: Container(
+        alignment: Alignment.topCenter,
+        margin: fullScreen
+        ? const EdgeInsets.all(8)
+        : const EdgeInsets.symmetric(horizontal: 25),
+        width: double.infinity,
+        height: 480,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.yellow.shade600,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+              const _ShoeWithShadow(),
+              const Spacer(),
+    
+              fullScreen
+              ? const SizedBox()
+              : const _ListSizes(),
+            ],
+          ),
         ),
       ),
     );
@@ -61,44 +70,55 @@ class _ListSizes extends StatelessWidget {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _ShoeSizeBox(7),
-        _ShoeSizeBox(7.5),
-        _ShoeSizeBox(8),
-        _ShoeSizeBox(8.5),
-        _ShoeSizeBox(9),
-        _ShoeSizeBox(9.5),
+        _ShoeSizeBox(7, 6),
+        _ShoeSizeBox(7.5, 5),
+        _ShoeSizeBox(8, 4),
+        _ShoeSizeBox(8.5, 3),
+        _ShoeSizeBox(9, 2),
+        _ShoeSizeBox(9.5, 1),
       ],
     );
   }
 }
 
 
-class _ShoeSizeBox extends StatelessWidget {
+class _ShoeSizeBox extends ConsumerWidget {
   final double number;
-  const _ShoeSizeBox(this.number);
+  final int index;
+  const _ShoeSizeBox(this.number, this.index);
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: number != 9 ? Colors.white : Colors.orangeAccent,
-        boxShadow: number != 9 
-        ? null 
-        : [BoxShadow(
-            blurRadius: 20,
-            spreadRadius: -10,
-            offset: const Offset(2, 10),
-            color: Colors.orange.shade900
+  Widget build(BuildContext context, ref) {
 
-          )]
+    final shoe = ref.watch(shoeProvider);
+
+    return GestureDetector(
+      onTap: () => ref.read(shoeProvider.notifier).setSize(number),
+      child: FadeInLeft(
+        delay: Duration(milliseconds: index * 280),
+        duration: const Duration(milliseconds: 100),
+        child: Container(
+          alignment: Alignment.center,
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: shoe.selectedSize != number  ? Colors.white : Colors.orangeAccent,
+            boxShadow: shoe.selectedSize != number
+            ? null 
+            : [BoxShadow(
+                blurRadius: 20,
+                spreadRadius: -10,
+                offset: const Offset(2, 10),
+                color: Colors.orange.shade900
+      
+              )]
+          ),
+          child: shoe.selectedSize != number 
+            ? Text(number.toString().replaceAll('.0', ''), style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),)
+            : Text(number.toString().replaceAll('.0', ''), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+        ),
       ),
-      child: number != 9 
-        ? Text(number.toString().replaceAll('.0', ''), style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),)
-        : Text(number.toString().replaceAll('.0', ''), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
     );
   }
 }
@@ -121,14 +141,17 @@ class _ShoeWithShadow extends StatelessWidget {
   }
 }
 
-class _Shoe extends StatelessWidget {
+class _Shoe extends ConsumerWidget {
   const _Shoe();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+
+    final shoeImage = ref.watch(shoeProvider).selectedColor;
+
     return Padding(
       padding: const EdgeInsets.only(top: 30),
-      child: Image.asset('assets/images/azul.png', width: 300,),
+      child: Image.asset(shoeImage, width: 300,),
     );
   }
 }

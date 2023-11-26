@@ -1,7 +1,7 @@
 
 
 import 'package:go_router/go_router.dart';
-import 'package:shoes_app/presentation/screens/zapato_desc_screen.dart';
+import 'package:shoes_app/presentation/screens/screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -9,6 +9,10 @@ final appRouter = GoRouter(
 
     GoRoute(
       path: '/',
+      builder: (context, state) => const ShoesScreen(),
+    ),
+    GoRoute(
+      path: '/shoe-preview',
       builder: (context, state) => const ShoeDescScreen(),
     )
 
